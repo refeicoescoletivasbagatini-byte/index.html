@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+<meta charset="UTF-8">
+<title>Jullyana Bagatini - Sistema</title>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+
+<style>
+body {
+  margin:0;
+  font-family: Arial;
+  background:#0b0b0b;
+  color:#fff;
+}
+
+header {
+  text-align:center;
+  padding:20px;
+  border-bottom:2px solid #d4af37;
+}
+
+header img {
+  max-width:140px;
+}
+
+header h1 {
+  color:#d4af37;
+  font-size:18px;
+}
+
+.menu {
+  display:flex;
+}
+
+.sidebar {
+  width:200px;
+  background:#111;
+  height:100vh;
+  padding:15px;
+}
+
+.sidebar button {
+  width:100%;
+  margin-bottom:10px;
+  padding:10px;
+  background:#d4af37;
+  border:none;
+  border-radius:8px;
+}
+
+.content {
+  flex:1;
+  padding:15px;
+}
+
+input, textarea {
+  width:100%;
+  padding:10px;
+  margin:5px 0;
+  border-radius:8px;
+  border:none;
+  background:#1a1a1a;
+  color:#fff;
+}
+
+.lista {
+  background:#1a1a1a;
+  padding:10px;
+  margin-top:5px;
+  border-radius:8px;
+  cursor:pointer;
+}
+</style>
+</head>
+
+<body>
+
+<header>
+<img src="logo.jpg">
+<h1>Optometrista Jullyana Bagatini</h1>
+</header>
+
+<div class="menu">
+
+<div class="sidebar">
+<button onclick="novo()">➕ Novo</button>
+<button onclick="listar()">📂 Pacientes</button>
+</div>
+
+<div class="content">
+
+<h2>Paciente</h2>
+<input id="nome" placeholder="Nome">
+<input id="telefone" placeholder="Telefone">
+
+<h2>Queixa</h2>
+<textarea id="queixa"></textarea>
+
+<h2>Exames</h2>
+<input id="refracao" placeholder="Refração">
+
+<h2>Diagnóstico</h2>
+<textarea id="diag"></textarea>
+
+<button onclick="salvar()">💾 Salvar</button>
+<button onclick="gerarPDF()">📄 PDF</button>
+<button onclick="whats()">📲 WhatsApp</button>
+
+<h2>Buscar</h2>
+<input onkeyup="buscar(this.value)" placeholder="Digite nome...">
+
+<div id="lista"></div>
+
+</div>
+</div>
+
+<script>
+
+function salvar(){
+ let nome = document.getElementById("nome").value;
+
+ let dados = {
+  telefone: telefone.value,
+  queixa: queixa.value,
+  refracao: refracao.value,
+  diag: diag.value
+ };
+
+ localStorage.setItem(nome, JSON.stringify(dados));
+ alert("Salvo!");
+ listar();
+}
+
+function listar(){
+ let lista = document.getElementById("lista");
+ lista.innerHTML="";
+
+ for(let i=0;i<localStorage.length;i++){
+  let nome = localStorage.key(i);
+
+  lista.innerHTML += `<div class="lista" onclick="abrir('${nome}')">${nome}</div>`;
+ }
+}
+
+function abrir(nome){
+ let d = JSON.parse(localStorage.getItem(nome));
+
+ document.getElementById("nome").value = nome;
+ telefone.value = d.telefone;
+ queixa.value = d.queixa;
+ refracao.value = d.refracao;
+ diag.value = d.diag;
+}
+
+function buscar(txt){
+ let lista = document.getElementById("lista");
+ lista.innerHTML="";
+
+ for(let i=0;i<localStorage.length;i++){
+  let nome = localStorage.key(i);
+
+  if(nome.toLowerCase().includes(txt.toLowerCase())){
+   lista.innerHTML += `<div class="lista" onclick="abrir('${nome}')">${nome}</div>`;
+  }
+ }
+}
+
+function novo(){
+ document.querySelectorAll("input,textarea").forEach(e=>e.value="");
+}
+
+async function gerarPDF(){
+ const { jsPDF } = window.jspdf;
+ const doc = new jsPDF();
+
+ doc.text("Jullyana Bagatini - Optometrista", 20,20);
+ doc.text("Paciente: " + nome.value, 20,40);
+ doc.text("Queixa: " + queixa.value, 20,60);
+ doc.text("Refração: " + refracao.value, 20,80);
+ doc.text("Diagnóstico: " + diag.value, 20,100);
+
+ doc.save(nome.value + ".pdf");
+}
+
+function whats(){
+ let msg = `Paciente: ${nome.value}\nRefração: ${refracao.value}\nDiagnóstico: ${diag.value}`;
+ window.open("https://wa.me/5551999434629?text="+encodeURIComponent(msg));
+}
+
+listar();
+
+</script>
+
+</body>
+</html>
